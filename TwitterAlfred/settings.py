@@ -60,8 +60,12 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-SOCIAL_AUTH_TWITTER_KEY = '2G8XPMR1fsWlUih1vSs0PPGP0 '
-SOCIAL_AUTH_TWITTER_SECRET = 'HqsjqDywEICnxgvi9uY1KEGD1n9rXVhyv6ytldzbatJoe64uHF '
+SOCIAL_AUTH_TWITTER_KEY = '2G8XPMR1fsWlUih1vSs0PPGP0'
+SOCIAL_AUTH_TWITTER_SECRET = 'HqsjqDywEICnxgvi9uY1KEGD1n9rXVhyv6ytldzbatJoe64uHF'
+
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+LOGIN_REDIRECT_URL = 'home'
 
 ROOT_URLCONF = 'TwitterAlfred.urls'
 
