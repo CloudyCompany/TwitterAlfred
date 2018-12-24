@@ -6,3 +6,133 @@ footer {
     color: #269871;
     border-top: solid 10px #269871;
 }
+
+.page-header a{
+    /* padding-left: 3em; */
+    color: #37CBDE!important;
+    text-decoration: none;
+}
+
+.logo {
+    width:13%;
+    float:left;
+    padding-left: 3em;
+    margin-right: 1em;
+    padding-top:0.5em;    
+}
+
+.logo-text{
+    font-size: 25px;
+    color:white;
+}
+
+.logo-text:hover{
+    color:white;
+    text-decoration: none;
+}
+/* Side bar menu */
+.navbar-global {
+background-color: indigo;
+}
+
+.navbar-brand {
+    height:5em;
+}
+.navbar-global .navbar-brand {
+color: white;
+}
+
+.navbar-global .navbar-user > li > a
+{
+color: white;
+padding-top:2.5em;
+padding-right:2em;
+}
+
+.navbar-primary {
+background-color: #333;
+bottom: 0px;
+left: 0px;
+position: absolute;
+top: 90px;
+width: 200px;
+z-index: 8;
+overflow: hidden;
+-webkit-transition: all 0.1s ease-in-out;
+-moz-transition: all 0.1s ease-in-out;
+transition: all 0.1s ease-in-out;
+font-size: 18px;
+}
+
+.navbar-primary.collapsed {
+width: 60px;
+}
+
+.navbar-primary.collapsed .glyphicon {
+font-size: 22px;
+}
+
+.navbar-primary.collapsed .nav-label {
+display: none;
+}
+
+.btn-expand-collapse {
+    position: absolute;
+    display: block;
+    left: 0px;
+    bottom:0;
+    width: 100%;
+    padding: 8px 0;
+    border-top:solid 1px #666;
+    color: grey;
+    font-size: 20px;
+    text-align: center;
+}
+
+.btn-expand-collapse:hover,
+.btn-expand-collapse:focus {
+    background-color: #222;
+    color: white;
+}
+
+.btn-expand-collapse:active {
+    background-color: #111;
+}
+
+.navbar-primary-menu,
+.navbar-primary-menu li {
+margin:0; padding:0;
+list-style: none;
+}
+
+.navbar-primary-menu li a {
+display: block;
+padding: 10px 18px;
+text-align: left;
+border-bottom:solid 1px #444;
+color: #ccc;
+}
+
+.navbar-primary-menu li a:hover {
+background-color: #000;
+text-decoration: none;
+color: white;
+}
+
+.navbar-primary-menu li a .glyphicon {
+margin-right: 6px;
+}
+
+.navbar-primary-menu li a:hover .glyphicon {
+color: orchid;
+}
+
+.main-content {
+margin-top: 60px;
+margin-left: 250px;
+padding: 30px;
+}
+
+.collapsed + .main-content {
+margin-left: 60px;
+}

@@ -5,14 +5,48 @@
         <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
         <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <link rel="shortcut icon" type="image/png" href="{% static 'favicon.png' %}"/>
         <link href='//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
     </head>
     <body>
-        <div class="page-header">
-            <h1><a href="/">Twitter Alfred</a></h1>
-        </div>
-
-        <div class="content container">
+        <nav class="navbar navbar-inverse navbar-global navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <div class="navbar-brand">
+                    <div class="row navbar-user">
+                        <img class="logo" src="https://comicbookcompass.files.wordpress.com/2013/04/batman_tas_alfred.png"/>
+                        <br/>
+                        <a class="logo-text" href="/home">Twitter Alfred</a>
+                    </div>
+                </div>
+                </div>
+                <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-user navbar-right">
+                    <li><a href="#"><span class="glyphicon glyphicon-user"></span> {{user.username}} </a></li>
+                    <li><a href="#about"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+                </ul>
+                </div>
+            </div>
+            </nav>
+        <nav class="navbar-primary">
+        <a href="#" class="btn-expand-collapse"><span class="glyphicon glyphicon-menu-left"></span></a>
+        <ul class="navbar-primary-menu">
+            <li>
+            <a href="/home"><span class="glyphicon glyphicon-home"></span><span class="nav-label">Inicio</span></a>
+            <a href="#"><span class="glyphicon glyphicon-search"></span><span class="nav-label">Filtrar</span></a>
+            <a href="#"><span class="glyphicon glyphicon-user"></span><span class="nav-label">Personas</span></a>
+            <a href="#"><span class="glyphicon glyphicon-star"></span><span class="nav-label">Tendencias</span></a>
+            <a href="#"><span class="glyphicon glyphicon-map-marker"></span><span class="nav-label">Mapa</span></a>
+            </li>
+        </ul>
+        </nav>
+        <div class="content container main-content">
             <div class="row">
                 <div class="col-md-8">
                     {% block content %}
@@ -21,7 +55,7 @@
             </div>
         </div>
         <footer class="page-footer font-small indigo navbar-fixed-bottom">
-                <div class="footer-copyright text-center py-3">© 2018 Copyright:
+                <div class="footer-copyright text-center py-3">© 2018-2019 Copyright:
                         <a href="https://github.com/CloudyCompany"> CloudyCompany</a>
                 </div>
         </footer>
