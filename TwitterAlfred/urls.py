@@ -19,4 +19,11 @@ from django.urls import path, include
 urlpatterns = [
     path('',include('main.urls')),
     path('admin/', admin.site.urls),
+    path('oauth/', include('social_django.urls', namespace='social')),
+    # path(r'^settings/$', core_views.settings, name='settings'),
+    # path(r'^settings/password/$', core_views.password, name='password'),
 ]
+
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+LOGIN_REDIRECT_URL = 'home'
