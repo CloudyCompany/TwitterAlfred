@@ -5,6 +5,9 @@
         <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
         <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+        <script src="https://code.jquery.com/jquery-3.3.1.js"
+            integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+            crossorigin="anonymous"></script>
         <link rel="shortcut icon" type="image/png" href="{% static 'favicon.png' %}"/>
         <link href='//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
     </head>
@@ -19,9 +22,8 @@
                     <span class="icon-bar"></span>
                 </button>
                 <div class="navbar-brand">
-                    <div class="row navbar-user">
-                        <img class="logo" src="https://comicbookcompass.files.wordpress.com/2013/04/batman_tas_alfred.png"/>
-                        <br/>
+                    <div class="row">
+                        <img class="logo navbar-left" src="https://ilovetokio.files.wordpress.com/2015/06/logos-social-twitter-i-love-tokio-couture.png"/>
                         <a class="logo-text" href="/home">Twitter Alfred</a>
                     </div>
                 </div>
@@ -29,7 +31,7 @@
                 <div id="navbar" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav navbar-user navbar-right">
                     <li><a href="#"><span class="glyphicon glyphicon-user"></span> {{user.username}} </a></li>
-                    <li><a href="#about"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+                    <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
                 </ul>
                 </div>
             </div>
@@ -39,7 +41,7 @@
         <ul class="navbar-primary-menu">
             <li>
             <a href="/home"><span class="glyphicon glyphicon-home"></span><span class="nav-label">Inicio</span></a>
-            <a href="#"><span class="glyphicon glyphicon-search"></span><span class="nav-label">Filtrar</span></a>
+            <a href="/stream"><span class="glyphicon glyphicon-search"></span><span class="nav-label">Filtrar</span></a>
             <a href="#"><span class="glyphicon glyphicon-user"></span><span class="nav-label">Personas</span></a>
             <a href="#"><span class="glyphicon glyphicon-star"></span><span class="nav-label">Tendencias</span></a>
             <a href="#"><span class="glyphicon glyphicon-map-marker"></span><span class="nav-label">Mapa</span></a>
@@ -48,7 +50,7 @@
         </nav>
         <div class="content container main-content">
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-10">
                     {% block content %}
                     {% endblock %}
                 </div>

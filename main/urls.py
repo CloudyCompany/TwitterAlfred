@@ -7,5 +7,5 @@ urlpatterns = [
     path('login/', auth_views.login, name='login'),
     path('logout/', auth_views.logout, name='logout'),
     path('getStream/', views.get_twitter_stream),
-    path('stream/', views.twitter_stream),
+    path('stream/', views.twitter_stream, name="stream"),
 ]

@@ -23,7 +23,3 @@ urlpatterns = [
     # path(r'^settings/$', core_views.settings, name='settings'),
     # path(r'^settings/password/$', core_views.password, name='password'),
 ]
-
-LOGIN_URL = 'login'
-LOGOUT_URL = 'logout'
-LOGIN_REDIRECT_URL = 'home'

@@ -1,6 +1,6 @@
 footer {
-    padding-bottom: 1.5em;
-    padding-top: 1.5em;
+    padding-bottom: 1em;
+    padding-top: 1em;
     background-color: #9CFCDA;
     font-weight: bold;
     color: #269871;
@@ -14,14 +14,15 @@ footer {
 }
 
 .logo {
-    width:13%;
+    width:10%;
     float:left;
     padding-left: 3em;
     margin-right: 1em;
-    padding-top:0.5em;    
+    margin-top:-0.5em;
 }
 
 .logo-text{
+    padding-bottom: 10em;
     font-size: 25px;
     color:white;
 }
@@ -30,13 +31,19 @@ footer {
     color:white;
     text-decoration: none;
 }
-/* Side bar menu */
+.tweet{
+    border: solid 2px #37CBDE;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+/*   Side bar menu   */
 .navbar-global {
 background-color: indigo;
 }
 
 .navbar-brand {
-    height:5em;
+    height:3em;
 }
 .navbar-global .navbar-brand {
 color: white;
@@ -45,7 +52,6 @@ color: white;
 .navbar-global .navbar-user > li > a
 {
 color: white;
-padding-top:2.5em;
 padding-right:2em;
 }
 
@@ -53,8 +59,8 @@ padding-right:2em;
 background-color: #333;
 bottom: 0px;
 left: 0px;
-position: absolute;
-top: 90px;
+position: fixed;
+top: 55px;
 width: 200px;
 z-index: 8;
 overflow: hidden;
@@ -125,6 +131,10 @@ margin-right: 6px;
 
 .navbar-primary-menu li a:hover .glyphicon {
 color: orchid;
+}
+
+.navbar-user li a:hover .glyphicon {
+    color: orchid;
 }
 
 .main-content {

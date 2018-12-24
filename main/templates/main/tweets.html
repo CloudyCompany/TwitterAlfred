@@ -1,14 +1,38 @@
-<script src="https://code.jquery.com/jquery-3.3.1.js"
-			  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
-			  crossorigin="anonymous"></script>
-<div id="content">
-{{ tweets }}
-</div>
+{% extends 'base.html' %}
 
+{% block content %}
+    <div class="row">
+        <div class="col-md-2">
+                <form action="/stream/" method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                        
+                    <input class="btn btn-default" type="submit" value="Filtrar">
+                </form>
+        </div>
+        <div class="col-md-10" id="content">
+        {% for t in tweets %}
+            <div class="tweet">
+                {{ t }}
+            </div>
+        <br/>
+        {% endfor %}
+        </div>
+    </div>
 <script>
     setInterval(function() {
         $.get("http://127.0.0.1:8000/getStream/", function (data) {
+            $("#content").empty();
+            var i;
+            reversed_data = data.data.reverse()
             console.log(data)
+            for (i in reversed_data){
+                $("#content").append('<div class="tweet">' + reversed_data[i] + "</div><br/>");
+            }
+
+            //  Sidebar height
+            $(".navbar-primary").height($("#content").height() + 1000);
         });
-    }, 20000);
+    }, 3000);
 </script>
+{% endblock %}
