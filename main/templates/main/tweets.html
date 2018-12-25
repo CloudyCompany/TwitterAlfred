@@ -6,7 +6,6 @@
                 <form action="/stream/" method="post">
                     {% csrf_token %}
                     {{ form.as_p }}
-                        
                     <input class="btn btn-default" type="submit" value="Filtrar">
                 </form>
         </div>
@@ -24,10 +23,10 @@
         $.get("http://127.0.0.1:8000/getStream/", function (data) {
             $("#content").empty();
             var i;
-            reversed_data = data.data.reverse()
-            console.log(data)
-            for (i in reversed_data){
-                $("#content").append('<div class="tweet">' + reversed_data[i] + "</div><br/>");
+            console.log(data);
+            for (i in data.data){
+                html = $.parseHTML( '<div class="tweet">'+'<img src='+data.photos[i]+'><img>' + data.data[i] + "</div><br/>");
+                $("#content").append(html);
             }
 
             //  Sidebar height
