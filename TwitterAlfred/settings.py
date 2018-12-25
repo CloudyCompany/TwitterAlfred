@@ -69,6 +69,18 @@ LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 LOGIN_REDIRECT_URL = 'stream'
 
+# Login pipeline
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+    'main.auth_pipelines.pipeline.create_user',
+    'main.auth_pipelines.pipeline.save_profile'
+)
 ROOT_URLCONF = 'TwitterAlfred.urls'
 
 TEMPLATES = [
@@ -84,6 +96,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
+                'main.context_processors.user_online',
             ],
         },
     },

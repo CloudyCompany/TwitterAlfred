@@ -23,8 +23,9 @@ footer {
 
 .logo-text{
     padding-bottom: 10em;
-    font-size: 25px;
+    font-size: 2vw;
     color:white;
+    /* padding-right: 3em; */
 }
 
 .logo-text:hover{
@@ -37,6 +38,20 @@ footer {
     padding: 5px;
 }
 
+.profile-photo{
+    border-radius: 50%;
+    width: 15%;
+}
+
+.container-fluid, .navbar-right{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.username:hover{
+    color: orchid!important;
+}
 /*   Side bar menu   */
 .navbar-global {
 background-color: indigo;

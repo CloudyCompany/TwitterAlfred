@@ -60,14 +60,12 @@ def twitter_stream(request):
     global tweets
     global tag
 
-    get_twitter_stream("")
 
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         form = FilterForm(request.POST)
         # check whether it's valid:
         if form.is_valid():
-            print("holiiii")
             tag = form['tag'].value()
             tweets = []
             get_twitter_stream("")
@@ -75,5 +73,6 @@ def twitter_stream(request):
             return render(request, "main/tweets.html", {"tweets":tweets, "url": "http://127.0.0.1:8000/getStream/", "form":form})            
     else:
         form = FilterForm()
+        get_twitter_stream("")
 
     return render(request, "main/tweets.html", {"tweets":tweets, "url": "http://127.0.0.1:8000/getStream/", "form":form})

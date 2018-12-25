@@ -30,8 +30,14 @@
                 </div>
                 <div id="navbar" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav navbar-user navbar-right">
-                    <li><a href="#"><span class="glyphicon glyphicon-user"></span> {{user.username}} </a></li>
+                    {% if user_online %}
+                    <li><a class="username" target="_blank" href="https://twitter.com/{{screen_name}}"><img class="profile-photo" src="{{profile_photo}}"/> {{user.first_name}} {{user.last_name}} (@{{screen_name}})</a></li>
+                    {% endif %}
+                    {% if user_online %}
                     <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+                    {% else %}
+                    <li><a href="{% url 'social:begin' 'twitter' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                    {% endif %}
                 </ul>
                 </div>
             </div>
