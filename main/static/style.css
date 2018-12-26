@@ -1,3 +1,7 @@
+html, body{
+    overflow-x: hidden;
+}
+
 footer {
     padding-bottom: 1em;
     padding-top: 1em;
@@ -5,6 +9,19 @@ footer {
     font-weight: bold;
     color: #269871;
     border-top: solid 10px #269871;
+}
+
+.footer-copyright {
+    margin-top: 30em;
+    font-size: 0.8vw;
+}
+
+.footer-copyright a{
+    color:white!important;
+}
+
+#tweet-map{
+    height:50%;
 }
 
 .page-header a{
@@ -31,11 +48,44 @@ footer {
     text-decoration: none;
 }
 .tweet{
-    border: solid 2px #37CBDE;
+    border: solid 1px #8CE7F3;
     border-radius: 5px;
     padding: 5px;
+    background-color: #E9FDFF;
+    box-shadow: 3px 4px #8CE7F3;
+}
+#content{
+    max-height: 530px;
+    /* border: solid 2px red; */
+    overflow: auto;
 }
 
+/* Custom scrollbar */
+/* width */
+::-webkit-scrollbar {
+width: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+background: #f1f1f1; 
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+background: #CFCFCF; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+background: #A9A9A9; 
+}
+
+/* *** */
+
+.left-container{
+    /* position:fixed; */
+}
 .profile-photo{
     border-radius: 50%;
     width: 15%;

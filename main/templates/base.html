@@ -10,6 +10,11 @@
             crossorigin="anonymous"></script>
         <link rel="shortcut icon" type="image/png" href="{% static 'favicon.png' %}"/>
         <link href='//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+        
+        <!-- Open Layers Map -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.js"></script>
+
     </head>
     <body>
         <nav class="navbar navbar-inverse navbar-global navbar-fixed-top">
@@ -43,7 +48,6 @@
             </div>
             </nav>
         <nav class="navbar-primary">
-        <a href="#" class="btn-expand-collapse"><span class="glyphicon glyphicon-menu-left"></span></a>
         <ul class="navbar-primary-menu">
             <li>
             <a href="/home"><span class="glyphicon glyphicon-home"></span><span class="nav-label">Inicio</span></a>
@@ -53,6 +57,9 @@
             <a href="#"><span class="glyphicon glyphicon-map-marker"></span><span class="nav-label">Mapa</span></a>
             </li>
         </ul>
+        <div class="footer-copyright text-center">
+            <a target="_blank" href="https://github.com/CloudyCompany">© CloudyCompany</a>
+        </div>
         </nav>
         <div class="content container main-content">
             <div class="row">
@@ -62,10 +69,5 @@
                 </div>
             </div>
         </div>
-        <footer class="page-footer font-small indigo navbar-fixed-bottom">
-                <div class="footer-copyright text-center py-3">© 2018-2019 Copyright:
-                        <a target="_blank" href="https://github.com/CloudyCompany"> CloudyCompany</a>
-                </div>
-        </footer>
     </body>
 </html>

@@ -34,19 +34,21 @@ class StreamListener(tweepy.StreamListener):
     def on_status(self, status):
         global last_id
         global photos
-        print(status)
         if (time.time() - current_time) < time_limit and status.id != last_id:
+            print(status.user.geo_enabled)
+            print(status.coordinates)
             last_id = status.id
-            tweets.insert(0, status.text)
-            photos.insert(0, status.user.profile_image_url)
-            dates.insert(0, status.created_at)
-            users.insert(0, "@"+str(status.user.screen_name))
+            tweet = {}
+            tweet['text'] = status.text
+            tweet['user_photo'] = status.user.profile_image_url
+            tweet['date'] = status.created_at
+            tweet['username'] = status.user.screen_name
+            tweet['name'] = status.user.name
+            tweets.insert(0, tweet)
+
             if len(tweets) > pagination:
                 tweets.pop()
-                photos.pop()
-                dates.pop()
-                users.pop()
-            # print(status.text)
+        
             return True
         else:
             return False
@@ -67,11 +69,10 @@ def get_twitter_stream(request):
     current_time = time.time()
 
     streamListener = StreamListener()
-    print(tag)
     stream = tweepy.Stream(auth=api.auth, listener=streamListener)
     stream.filter(track=[str(tag)])
 
-    return JsonResponse({'data': tweets, 'photos': photos, 'users':users,'dates':dates})
+    return JsonResponse({'data': tweets})
 
 
 def twitter_stream(request):
@@ -80,18 +81,16 @@ def twitter_stream(request):
     global pagination
 
     if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
         form = FilterForm(request.POST)
-        # check whether it's valid:
         if form.is_valid():
             tag = form['tag'].value()
             pagination = int(form["pagination"].value())
             tweets = []
             get_twitter_stream("")
             
-            return render(request, "main/tweets.html", {"tweets":tweets, "photos": photos, "dates" : dates, "users" : users, "url": "http://127.0.0.1:8000/getStream/", "form": form})
+            return render(request, "main/tweets.html", {"tweets":tweets, "url": "http://127.0.0.1:8000/getStream/", "form": form})
     else:
         form = FilterForm()
         get_twitter_stream("")
 
-    return render(request, "main/tweets.html", {"tweets": tweets, "photos": photos, "dates" : dates, "users" : users, "url": "http://127.0.0.1:8000/getStream/", "form":form})
+    return render(request, "main/tweets.html", {"tweets": tweets, "url": "http://127.0.0.1:8000/getStream/", "form":form})

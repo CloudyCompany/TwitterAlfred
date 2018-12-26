@@ -2,14 +2,15 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-2">
+        <div class="col-md-6 left-container">
                 <form action="/stream/" method="post">
                     {% csrf_token %}
                     {{ form.as_p }}
                     <input class="btn btn-default" type="submit" value="Filtrar">
                 </form>
+                <div id="tweet-map"></div>
         </div>
-        <div class="col-md-10" id="content">
+        <div class="col-md-6" id="content">
         {% for t in tweets %}
             <div class="tweet">
                 {{ t }}
@@ -25,9 +26,9 @@
             var i;
             console.log(data);
             for (i in data.data){
-                html = $.parseHTML( '<div class="tweet">'+'<img class="tweet-photo" src='+data.photos[i]+'><img>'
-                    + '<span class="tweet-user">' + data.users[i] + '</span>'
-                    + data.data[i] +
+                html = $.parseHTML( '<div class="tweet">' + '<img class="tweet-photo" src=' + data.data[i].user_photo +'><img>'
+                    + '<span class="tweet-user">' + data.data[i].username + '</span>'
+                    + data.data[i].text +
                     "</div><br/>");
                 $("#content").append(html);
             }
@@ -36,5 +37,39 @@
             $(".navbar-primary").height($("#content").height() + 1000);
         });
     }, 3000);
+
+    // Render map
+    let olView = new ol.View({
+    center: [35.689634, 139.692101],
+    zoom: 1.5,
+    });
+
+    let olLayers = [
+    new ol.layer.Tile({
+        source: new ol.source.OSM(),
+    })
+    ];
+
+    var map = new ol.Map({
+    layers: [new ol.layer.Tile({
+            source: new ol.source.OSM()
+    })],
+    view: olView,
+    target: 'tweet-map',
+    });
+
+    //Adding a marker on the map
+    var marker = new ol.Feature({
+    geometry: new ol.geom.Point(
+        ol.proj.fromLonLat([-74.006,40.7127])
+    ),  // Cordinates of New York's Town Hall
+    });
+    var vectorSource = new ol.source.Vector({
+    features: [marker]
+    });
+    var markerVectorLayer = new ol.layer.Vector({
+    source: vectorSource,
+    });
+    map.addLayer(markerVectorLayer);
 </script>
 {% endblock %}
