@@ -12,6 +12,8 @@ access_token = "748223177210331142-8fnl2OAldHDHiDttw4QFbqFppAYhzYw"
 access_token_secret = "P3rleM8izkVLsOGIYG8DElTSZAAwFLxOt7cle9aNKYzPz"
 tweets = []
 photos = []
+dates = []
+users = []
 pagination = 10
 time_limit = 5
 current_time = 0
@@ -35,12 +37,15 @@ class StreamListener(tweepy.StreamListener):
         print(status)
         if (time.time() - current_time) < time_limit and status.id != last_id:
             last_id = status.id
-            tweets.insert(0, "@"+str(status.user.screen_name)+": "+status.text+" at " + str(status.created_at))
+            tweets.insert(0, status.text)
             photos.insert(0, status.user.profile_image_url)
+            dates.insert(0, status.created_at)
+            users.insert(0, "@"+str(status.user.screen_name))
             if len(tweets) > pagination:
                 tweets.pop()
                 photos.pop()
-
+                dates.pop()
+                users.pop()
             # print(status.text)
             return True
         else:
@@ -84,9 +89,9 @@ def twitter_stream(request):
             tweets = []
             get_twitter_stream("")
             
-            return render(request, "main/tweets.html", {"tweets":tweets, "photos": photos, "url": "http://127.0.0.1:8000/getStream/", "form": form})
+            return render(request, "main/tweets.html", {"tweets":tweets, "photos": photos, "dates" : dates, "users" : users, "url": "http://127.0.0.1:8000/getStream/", "form": form})
     else:
         form = FilterForm()
         get_twitter_stream("")
 
-    return render(request, "main/tweets.html", {"tweets": tweets, "photos": photos, "url": "http://127.0.0.1:8000/getStream/", "form":form})
+    return render(request, "main/tweets.html", {"tweets": tweets, "photos": photos, "dates" : dates, "users" : users, "url": "http://127.0.0.1:8000/getStream/", "form":form})

@@ -25,7 +25,10 @@
             var i;
             console.log(data);
             for (i in data.data){
-                html = $.parseHTML( '<div class="tweet">'+'<img src='+data.photos[i]+'><img>' + data.data[i] + "</div><br/>");
+                html = $.parseHTML( '<div class="tweet">'+'<img class="tweet-photo" src='+data.photos[i]+'><img>'
+                    + '<span class="tweet-user">' + users[i] + '</span>'
+                    + data.data[i] +
+                    "</div><br/>");
                 $("#content").append(html);
             }
 
