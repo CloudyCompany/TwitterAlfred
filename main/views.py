@@ -21,7 +21,6 @@ tag = "pink"
 last_id = 0
 
 
-
 @login_required
 def home(request):
     return render(request, 'home.html')
@@ -54,7 +53,7 @@ class StreamListener(tweepy.StreamListener):
             return False
 
 
-def get_twitter_stream(request):
+def get_twitter_stream(request=None):
     global tweets
     global time_limit
     global current_time
@@ -86,11 +85,11 @@ def twitter_stream(request):
             tag = form['tag'].value()
             pagination = int(form["pagination"].value())
             tweets = []
-            get_twitter_stream("")
+            get_twitter_stream()
             
             return render(request, "main/tweets.html", {"tweets":tweets, "url": "http://127.0.0.1:8000/getStream/", "form": form})
     else:
         form = FilterForm()
-        get_twitter_stream("")
+        get_twitter_stream()
 
     return render(request, "main/tweets.html", {"tweets": tweets, "url": "http://127.0.0.1:8000/getStream/", "form":form})
