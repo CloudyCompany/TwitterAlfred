@@ -41,10 +41,17 @@ footer {
     width: 15%;
 }
 
+.login{
+    margin-left: 7em;
+}
 .container-fluid, .navbar-right{
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.container-fluid{
+    height: 60px;
 }
 
 .username:hover{

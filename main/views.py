@@ -71,7 +71,7 @@ def get_twitter_stream(request):
     stream = tweepy.Stream(auth=api.auth, listener=streamListener)
     stream.filter(track=[str(tag)])
 
-    return JsonResponse({'data': tweets, 'photos': photos})
+    return JsonResponse({'data': tweets, 'photos': photos, 'users':users,'dates':dates})
 
 
 def twitter_stream(request):
