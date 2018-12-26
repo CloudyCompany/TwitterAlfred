@@ -109,7 +109,13 @@ background: #A9A9A9;
 }
 
 .tweet-photo {
+    width: 7%;
     border-radius: 50%;
+    margin-right: 0.5em;
+}
+
+.tweet-user a{
+    cursor: pointer;
 }
 /*   Side bar menu   */
 .navbar-global {

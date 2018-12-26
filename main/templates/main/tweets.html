@@ -12,9 +12,15 @@
         </div>
         <div class="col-md-6" id="content">
         {% for t in tweets %}
-            <div class="tweet">
-                {{ t }}
-            </div>
+                <div class="tweet">
+                    <span class="tweet-user">
+                        <img class="tweet-photo" src="{{t.user_photo}}"/>
+                            <a target="_blank" href="https://twitter.com/{{t.username}}">
+                                @{{t.username}}
+                            </a>
+                    </span><br/>
+                        {{t.text}}
+                </div>
         <br/>
         {% endfor %}
         </div>
@@ -26,8 +32,12 @@
             var i;
             console.log(data);
             for (i in data.data){
-                html = $.parseHTML( '<div class="tweet">' + '<img class="tweet-photo" src=' + data.data[i].user_photo +'><img>'
-                    + '<span class="tweet-user">' + data.data[i].username + '</span>'
+                html = $.parseHTML( '<div class="tweet">' + 
+                    '<span class="tweet-user"><img class="tweet-photo" src="' 
+                    + data.data[i].user_photo +'"/>'
+                    + '<a target="_blank" href="https://twitter.com/'+data.data[i].username + '">@' 
+                    + data.data[i].username 
+                    + '</a></span><br/>'
                     + data.data[i].text +
                     "</div><br/>");
                 $("#content").append(html);
