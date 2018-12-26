@@ -81,8 +81,10 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
     'main.auth_pipelines.pipeline.create_user',
-    'main.auth_pipelines.pipeline.save_profile'
+    'main.auth_pipelines.pipeline.save_profile',
+    'main.auth_pipelines.pipeline.update_user'
 )
+
 ROOT_URLCONF = 'TwitterAlfred.urls'
 
 TEMPLATES = [

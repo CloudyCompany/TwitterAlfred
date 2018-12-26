@@ -1,11 +1,13 @@
 from django.contrib.auth.models import User
 
+
 def user_online(request):
     user = request.user
     user_online = (hasattr(user, 'social_auth') and user.social_auth.count() >= 1)
     screen_name = ""
     profile_photo = ""
-
+    print(user_online)
+    print(user)
     if user_online:
         social = user.social_auth.get(provider='twitter') 
         extra_data = social.extra_data
