@@ -33,6 +33,7 @@ class StreamListener(tweepy.StreamListener):
     def on_status(self, status):
         global last_id
         global photos
+        print(status)
         if (time.time() - current_time) < time_limit and status.id != last_id:
             print(status.user.geo_enabled)
             print(status.coordinates)
