@@ -5,19 +5,18 @@ import tweepy
 import time
 from django.http import JsonResponse
 from main.forms import *
+import numpy
 
 consumer_key = "2G8XPMR1fsWlUih1vSs0PPGP0"
 consumer_secret = "HqsjqDywEICnxgvi9uY1KEGD1n9rXVhyv6ytldzbatJoe64uHF"
 access_token = "748223177210331142-8fnl2OAldHDHiDttw4QFbqFppAYhzYw"
 access_token_secret = "P3rleM8izkVLsOGIYG8DElTSZAAwFLxOt7cle9aNKYzPz"
 tweets = []
-photos = []
-dates = []
-users = []
+places = []
 pagination = 10
 time_limit = 5
 current_time = 0
-tag = "pink"
+tag = "trump"
 last_id = 0
 
 
@@ -29,6 +28,7 @@ def home(request):
 class StreamListener(tweepy.StreamListener):
     global tweets
     global current_time
+    global places
 
     def on_status(self, status):
         global last_id
@@ -36,6 +36,7 @@ class StreamListener(tweepy.StreamListener):
         if (time.time() - current_time) < time_limit and status.id != last_id:
             print(status.user.geo_enabled)
             print(status.coordinates)
+            print(status.place)
             last_id = status.id
             tweet = {}
             tweet['text'] = status.text
@@ -44,6 +45,11 @@ class StreamListener(tweepy.StreamListener):
             tweet['username'] = status.user.screen_name
             tweet['name'] = status.user.name
             tweets.insert(0, tweet)
+
+            if status.place is not None:
+                center = numpy.array(status.place.bounding_box.coordinates).mean(axis=1)[0].tolist()
+                print(center)
+                places.append(center)
 
             if len(tweets) > pagination:
                 tweets.pop()
@@ -58,8 +64,7 @@ def get_twitter_stream(request=None):
     global time_limit
     global current_time
     global tag
-    # if len(tweets) > 30:
-    #     tweets = []
+    global places
 
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
@@ -71,18 +76,23 @@ def get_twitter_stream(request=None):
     stream = tweepy.Stream(auth=api.auth, listener=streamListener)
     stream.filter(track=[str(tag)])
 
-    return JsonResponse({'data': tweets})
+    return JsonResponse({'data': tweets, 'places':places})
 
 
 def twitter_stream(request):
     global tweets
     global tag
     global pagination
+    global places
 
     if request.method == 'POST':
         form = FilterForm(request.POST)
         if form.is_valid():
-            tag = form['tag'].value()
+
+            if tag != form['tag'].value():
+                tag = form['tag'].value()
+                places = []
+
             pagination = int(form["pagination"].value())
             tweets = []
             get_twitter_stream()

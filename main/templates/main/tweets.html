@@ -30,7 +30,6 @@
         $.get("http://127.0.0.1:8000/getStream/", function (data) {
             $("#content").empty();
             var i;
-            console.log(data);
             for (i in data.data){
                 html = $.parseHTML( '<div class="tweet">' + 
                     '<span class="tweet-user"><img class="tweet-photo" src="' 
@@ -45,10 +44,13 @@
 
             //  Sidebar height
             $(".navbar-primary").height($("#content").height() + 1000);
+
+            // Refresh map
+            addMarkers(data.places);
         });
     }, 3000);
 
-    // Render map
+    // Create map for first time
     let olView = new ol.View({
     center: [35.689634, 139.692101],
     zoom: 1.5,
@@ -68,18 +70,26 @@
     target: 'tweet-map',
     });
 
-    //Adding a marker on the map
-    var marker = new ol.Feature({
-    geometry: new ol.geom.Point(
-        ol.proj.fromLonLat([-74.006,40.7127])
-    ),  // Cordinates of New York's Town Hall
-    });
-    var vectorSource = new ol.source.Vector({
-    features: [marker]
-    });
-    var markerVectorLayer = new ol.layer.Vector({
-    source: vectorSource,
-    });
-    map.addLayer(markerVectorLayer);
+    // Add markers
+    var addMarkers = function(markers){
+        for (i in markers){
+            var marker = new ol.Feature({
+            geometry: new ol.geom.Point(
+                ol.proj.fromLonLat([markers[i][0],markers[i][1]])
+            ), 
+            });
+            var vectorSource = new ol.source.Vector({
+            features: [marker]
+            });
+            var markerVectorLayer = new ol.layer.Vector({
+            source: vectorSource,
+            });
+            map.addLayer(markerVectorLayer);
+            }
+
+            map.updateSize();
+        }
+        
+    
 </script>
 {% endblock %}
