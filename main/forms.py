@@ -1,7 +1,7 @@
 from django import forms
 
 class FilterForm(forms.Form):
-    tag = forms.CharField(label='Etiquetas', required=False, max_length=100,
+    tag = forms.CharField(label='Etiquetas', required=False, max_length=100, initial="trump",
     widget = forms.TextInput(
             attrs = {'class': 'form-control'}
         ))
