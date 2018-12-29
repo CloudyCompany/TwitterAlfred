@@ -68,7 +68,7 @@ SOCIAL_AUTH_TWITTER_SECRET = 'HqsjqDywEICnxgvi9uY1KEGD1n9rXVhyv6ytldzbatJoe64uHF
 LOGIN_URL = '/oauth/login/twitter/'
 LOGOUT_URL = 'logout'
 LOGIN_REDIRECT_URL = 'stream'
-LOGOUT_REDIRECT_URL = '/oauth/login/twitter/'
+LOGOUT_REDIRECT_URL = 'home'
 
 # Login pipeline
 SOCIAL_AUTH_PIPELINE = (
