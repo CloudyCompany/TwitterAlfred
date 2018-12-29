@@ -32,7 +32,6 @@ class StreamListener(tweepy.StreamListener):
 
     def on_status(self, status):
         global last_id
-        global photos
         if (time.time() - current_time) < time_limit and status.id != last_id:
             last_id = status.id
             tweet = {}
@@ -45,7 +44,6 @@ class StreamListener(tweepy.StreamListener):
 
             if status.place is not None:
                 center = numpy.array(status.place.bounding_box.coordinates).mean(axis=1)[0].tolist()
-                print(center)
                 places.append(center)
 
             if len(tweets) > pagination:
@@ -55,6 +53,9 @@ class StreamListener(tweepy.StreamListener):
         else:
             return False
 
+    def on_error(self, status_code):
+        if status_code != 200:
+            return False
 
 def get_twitter_stream(request=None):
     global tweets
