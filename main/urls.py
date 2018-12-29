@@ -8,4 +8,5 @@ urlpatterns = [
     path('logout/', auth_views.logout, name='logout'),
     path('getStream/', views.get_twitter_stream),
     path('stream/', views.twitter_stream, name="stream"),
+    path('recommendations/<int:system_user_id>', views.twitter_stream, name="stream"),
 ]
