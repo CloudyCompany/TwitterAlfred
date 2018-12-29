@@ -2,4 +2,7 @@ django-cors-headers==2.1.0
 tweepy
 social-auth-app-django
 beautifulsoup4
+psycopg2
+django-haystack
+whoosh
 numpy

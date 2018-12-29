@@ -26,7 +26,7 @@ SECRET_KEY = 'qa^f*ehojlw+3bd%i!3je#$kbhexdzv=t!ud-x)h#99x!&^+q9'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-CORS_ORIGIN_ALLOW_ALL=True
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'haystack',
     'social_django',
     'corsheaders',
 ]
@@ -86,6 +87,7 @@ SOCIAL_AUTH_PIPELINE = (
     'main.auth_pipelines.pipeline.update_user'
 )
 
+
 ROOT_URLCONF = 'TwitterAlfred.urls'
 
 TEMPLATES = [
@@ -115,9 +117,20 @@ WSGI_APPLICATION = 'TwitterAlfred.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'alfred',
+        'USER': 'alfred',
+		'PASSWORD': 'alfred',
+        'HOST': 'localhost',
+        'PORT': '5432'
     }
+}
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(os.path.dirname(__file__), 'index'),
+    },
 }
 
 
