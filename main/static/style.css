@@ -124,6 +124,18 @@ background: #A9A9A9;
     border-radius: 5px;
     padding:0.8em;
     display: inline-block;
+    min-width:27em;
+}
+
+h2{
+    /* border-bottom: 1px solid linear-gradient(to bottom, black, rgba(0, 0, 0, 0)); */
+    /* border-image-slice: 1;
+    border-width: 2px;
+    border-image: linear-gradient(to left, #743ad5, #d53a9d); */
+    font-weight: 100;
+    border-bottom: solid 2px #757575;
+    margin-bottom: 1em;
+    color: #757575;
 }
 
 .account img{

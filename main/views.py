@@ -149,7 +149,6 @@ def getRecommendations(user,similarity=sim_pearson):
             if item not in follows:
                 # Similarity * Score
                 if item.followers_count != 0:
-                    retrieve_user_data(item)
                     totals.setdefault(item, 0)
 
                     totals[item] += item.followers_count*sim
@@ -159,7 +158,9 @@ def getRecommendations(user,similarity=sim_pearson):
     # Create the normalized list
     rankings=[(float(total/simSums[item]), item) for item, total in totals.items()]
     # Return the sorted list
-    rankings = sorted(rankings, key= lambda x: x[0], reverse=True)
+    rankings = sorted(rankings, key= lambda x: x[0], reverse=True)[:10]
+    # Get user profile and annotate it
+    [retrieve_user_data(value) for item, value in rankings]
     #rankings.reverse()
     return rankings
 
