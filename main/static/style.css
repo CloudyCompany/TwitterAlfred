@@ -117,6 +117,19 @@ background: #A9A9A9;
 .tweet-user a{
     cursor: pointer;
 }
+
+.account{
+    background-color:E3D4FF;
+    border: #9A70EA 2px solid;
+    border-radius: 5px;
+    padding:0.8em;
+    display: inline-block;
+}
+
+.account img{
+    border-radius: 50%;
+    margin-right:0.7em;
+}
 /*   Side bar menu   */
 .navbar-global {
 background-color: indigo;

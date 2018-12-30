@@ -7,6 +7,9 @@ from django.http import JsonResponse
 from main.forms import *
 from main.models import *
 import numpy as np
+import requests
+from requests_oauthlib import OAuth1Session
+import json
 
 consumer_key = "2G8XPMR1fsWlUih1vSs0PPGP0"
 consumer_secret = "HqsjqDywEICnxgvi9uY1KEGD1n9rXVhyv6ytldzbatJoe64uHF"
@@ -44,7 +47,7 @@ class StreamListener(tweepy.StreamListener):
             tweets.insert(0, tweet)
 
             if status.place is not None:
-                center = numpy.array(status.place.bounding_box.coordinates).mean(axis=1)[0].tolist()
+                center = np.array(status.place.bounding_box.coordinates).mean(axis=1)[0].tolist()
                 places.append(center)
 
             if len(tweets) > pagination:
@@ -104,7 +107,7 @@ def twitter_stream(request):
     return render(request, "main/tweets.html", {"tweets": tweets, "url": "http://127.0.0.1:8000/getStream/", "form": form})
 
 
-def sim_pearson(friends_p1,friends_p2):
+def sim_pearson(friends_p1, friends_p2):
 
     # Get the list of mutually rated items
     si={}
@@ -119,37 +122,51 @@ def sim_pearson(friends_p1,friends_p2):
     return (len(friends_p1)/n)+1/len(friends_p2)
 
 
-def getRecommendations(person,similarity=sim_pearson):
+def retrieve_user_data(user):
+    twitter = OAuth1Session('2G8XPMR1fsWlUih1vSs0PPGP0',
+                            client_secret='HqsjqDywEICnxgvi9uY1KEGD1n9rXVhyv6ytldzbatJoe64uHF',
+                            resource_owner_key='748223177210331142-8fnl2OAldHDHiDttw4QFbqFppAYhzYw',
+                            resource_owner_secret='P3rleM8izkVLsOGIYG8DElTSZAAwFLxOt7cle9aNKYzPz')
+    user_data = twitter.get("https://api.twitter.com/1.1/users/show.json?user_id="+str(user)).text
+    # print(user_data.text)
+    user.data = json.loads(user_data)
+
+def getRecommendations(user,similarity=sim_pearson):
     totals={}
     simSums={}
-    friends_person = SystemUser.objects.filter(id=person)[0].following_users
+    follows = SystemUser.objects.filter(id=user)[0].following_users.all()
     for other in SystemUser.objects.all():
         # don't compare me to myself
-        if other == person: continue
-        friends_other = SystemUser.objects.filter(usuario__id=other.id)
-        sim=similarity(friends_person, friends_other)
+        if str(other) == str(user): continue
+        other_follows = SystemUser.objects.filter(id=other.id)[0].following_users.all()
+        # print(other_follows)
+        sim=similarity(follows, other_follows)
         # ignore scores of zero or lower
         if sim<=0: continue
-        for item in friends_other:
+        for item in other_follows:
             # only score movies I haven't seen yet
-            if item not in friends_person:
+            if str(item) == str(user): continue 
+            if item not in follows:
                 # Similarity * Score
-                totals.setdefault(item, 0)
-                totals[item] += item.followers_count*sim
-                # Sum of similarities
-                simSums.setdefault(item, 0)
-                simSums[item] += sim
-    print(totals)
+                if item.followers_count != 0:
+                    retrieve_user_data(item)
+                    totals.setdefault(item, 0)
+
+                    totals[item] += item.followers_count*sim
+                    # Sum of similarities
+                    simSums.setdefault(item, 0)
+                    simSums[item] += sim
     # Create the normalized list
     rankings=[(float(total/simSums[item]), item) for item, total in totals.items()]
     # Return the sorted list
     rankings = sorted(rankings, key= lambda x: x[0], reverse=True)
     #rankings.reverse()
-    print(rankings)
     return rankings
 
 
-def recommend(request, system_user_id):
-    recommendations = getRecommendations(system_user_id)
+def recommend(request):
+    user_id = request.user.social_auth.get(provider='twitter').uid
+    recommendations = getRecommendations(user_id)
 
     return render(request, "main/recommendations.html", {"recommendations": recommendations})
+

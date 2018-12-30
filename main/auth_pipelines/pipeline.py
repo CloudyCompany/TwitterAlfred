@@ -41,18 +41,22 @@ def update_user(backend, user, response, *args, **kwargs):
 
     api = tweepy.API(auth)
     if system_user.following_count != int(response["friends_count"]):
-
         friends = []
         for ids in handle_errors(tweepy.Cursor(api.friends_ids, screen_name=response["screen_name"]).pages()):
             for id in ids:
                 try:
                     friends.append(User.objects.get(id=id))
                 except User.DoesNotExist:
-                    user = User(id=id, followers_count=0)
+                    followers_count = api.get_user(id).followers_count
+                    print(followers_count)
+                    user = User(id=id, followers_count=followers_count)
                     user.save()
                     friends.append(user)
         system_user.following_count = response["friends_count"]
         system_user.following_users.set(friends)
+
+        if response["followers_count"] != system_user.followers_count:
+            system_user.followers_count = response["followers_count"];
         system_user.save()
 
     if response["favourites_count"] != system_user.favourites_count:
@@ -75,5 +79,6 @@ def update_user(backend, user, response, *args, **kwargs):
 
         system_user.favourites_count = response["favourites_count"]
         system_user.save()
+
 
     print("System user updated")

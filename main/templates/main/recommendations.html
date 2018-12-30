@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Cuentas recomendadas</h2>
+    {% for key, value in recommendations %}
+    <br/>
+    <div class="account">
+        <img src="{{value.data.profile_image_url}}">
+        {{value.data.name}} (<a class="account-username" target="_blank" href="https://twitter.com/{{value.data.screen_name}}">@{{value.data.screen_name}})</a>
+    </div>
+    <br/>
+    {% empty %}
+    No tienes recomendaciones aún.
+    {% endfor %}
+{% endblock %}
