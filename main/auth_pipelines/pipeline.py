@@ -10,12 +10,12 @@ access_token_secret = "P3rleM8izkVLsOGIYG8DElTSZAAwFLxOt7cle9aNKYzPz"
 
 
 def create_user(backend, user, response, *args, **kwargs):
-    if len(SystemUser.objects.filter(id=response["id"])) == 0:
+    if not SystemUser.objects.filter(id=response["id"]).exists():
         sys_user = SystemUser(id=response["id"], followers_count=response["followers_count"], favourites_count=0,
                               following_count=0)
         sys_user.save()
 
-    print("System user saved")
+        print("System user saved")
 
 
 def save_profile(backend, user, response, *args, **kwargs):
@@ -30,8 +30,12 @@ def handle_errors(cursor):
     while True:
         try:
             yield cursor.next()
-        except tweepy.TweepError:
-            time.sleep(20 * 60)
+        except tweepy.TweepError as e:
+            if "Rate limit exceeded" in e.__str__():
+                time.sleep(60 * 5)  # Sleep for 5 minutes
+            else:
+                print(e)
+                break
 
 
 def update_user(backend, user, response, *args, **kwargs):
@@ -40,31 +44,33 @@ def update_user(backend, user, response, *args, **kwargs):
     auth.set_access_token(access_token, access_token_secret)
 
     api = tweepy.API(auth)
-    if system_user.following_count != int(response["friends_count"]):
-        friends = []
-        for ids in handle_errors(tweepy.Cursor(api.friends_ids, screen_name=response["screen_name"]).pages()):
-            for id in ids:
-                try:
-                    friends.append(User.objects.get(id=id))
-                except User.DoesNotExist:
-                    followers_count = api.get_user(id).followers_count
-                    print(followers_count)
-                    user = User(id=id, followers_count=followers_count)
+    try:
+        if system_user.following_count != int(response["friends_count"]):
+            friends_list = []
+            print("users deleted")
+            for friends in handle_errors(tweepy.Cursor(api.friends, screen_name=response["screen_name"]).pages()):
+                for idx in range(len(friends)):
+                    print(friends[idx])
+                    #followers_count = api.get_user(friend.id).followers_count
+                    user = User(id=friends[idx].id_str, followers_count=friends[idx].followers_count)
                     user.save()
-                    friends.append(user)
-        system_user.following_count = response["friends_count"]
-        system_user.following_users.set(friends)
+                    friends_list.append(user)
+            #  system_user.following_count = response["friends_count"]
+            #system_user.following_users.all().delete()
+            system_user.following_users.set(friends_list)
 
-        if response["followers_count"] != system_user.followers_count:
-            system_user.followers_count = response["followers_count"];
-        system_user.save()
-
-    if response["favourites_count"] != system_user.favourites_count:
-        UserLike.objects.filter(system_user=system_user).delete()
-        for favorite in handle_errors(tweepy.Cursor(api.favorites, screen_name=response["screen_name"]).items(100)):
+            if response["friends_count"] != system_user.following_count:
+                system_user.following_count = response["friends_count"]
+            system_user.save()
+        print("friends")
+        if response["favourites_count"] != system_user.favourites_count:
+            UserLike.objects.filter(system_user=system_user).delete()
+            for favorite in tweepy.Cursor(api.favorites, screen_name=response["screen_name"]).items(300):
+                print(favorite.user)
                 users = User.objects.filter(id=favorite.user.id)
                 if len(users) == 0:
-                    liked_user = User(id=favorite.user.id, followers_count=0)
+                    #followers_count = api.get_user(favorite.user.id).followers_count
+                    liked_user = User(id=favorite.user.id, followers_count=favorite.user.followers_count)
                     liked_user.save()
                 else:
                     liked_user = users[0]
@@ -76,9 +82,10 @@ def update_user(backend, user, response, *args, **kwargs):
                 else:
                     like = UserLike(user=liked_user, system_user=system_user, like_count=1)
                     like.save()
-
-        system_user.favourites_count = response["favourites_count"]
+            system_user.favourites_count = response["favourites_count"]
+    except tweepy.error.RateLimitError:
+        print("Rate Limit error")
+    finally:
         system_user.save()
-
 
     print("System user updated")

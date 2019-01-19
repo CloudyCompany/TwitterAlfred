@@ -61,6 +61,7 @@ class StreamListener(tweepy.StreamListener):
         if status_code != 200:
             return False
 
+
 def get_twitter_stream(request=None):
     global tweets
     global time_limit
@@ -107,19 +108,61 @@ def twitter_stream(request):
     return render(request, "main/tweets.html", {"tweets": tweets, "url": "http://127.0.0.1:8000/getStream/", "form": form})
 
 
-def sim_pearson(friends_p1, friends_p2):
+def sim_pearson(p1, p2, friends_p1, friends_p2):
 
+    print(friends_p1)
+    print(friends_p2)
     # Get the list of mutually rated items
     si={}
     for item in friends_p1:
-        if item in friends_p2:
-            si[item] = 1
+        if UserLike.objects.filter(system_user=p2, user=item.user).exists():
+                si[item.user] = 1
         # Find the number of elements
     n=len(si)
-    # if they are no ratings in common, return 0
-    if n==0: return 0
+    print("N: "+str(n))
+    if n == 0:
+        for item in p1.following_users.all():
+            if p2.following_users.filter(id=item.id).exists():
+                si[item]=1
+        if len(si)==0: return 0
+        return (len(si)/p1.following_count)+1/p2.following_count
 
-    return (len(friends_p1)/n)+1/len(friends_p2)
+    sum1 = 0
+    sum2 = 0
+    sum1Sq = 0
+    sum2Sq = 0
+    pSum = 0
+
+    for friend in si.keys():
+
+        p1_likes = UserLike.objects.filter(system_user=p1, user=friend)
+        p2_likes = UserLike.objects.filter(system_user=p2, user=friend)
+        print(p1_likes)
+        print(p2_likes)
+        if len(p1_likes) > 0:
+            p1_likes = p1_likes[0].like_count
+        else:
+            p1_likes = 0
+
+        if len(p2_likes) > 0:
+            p2_likes = p2_likes[0].like_count
+        else:
+            p2_likes = 0
+
+        sum1 += p1_likes
+        sum2 += p2_likes
+
+        sum1Sq += pow(p1_likes, 2)
+        sum2Sq += pow(p2_likes, 2)
+
+        pSum += p1_likes*p2_likes
+
+    num = pSum-(sum1*sum2/n)
+    den = np.sqrt((sum1Sq-pow(sum1,2)/n)*(sum2Sq-pow(sum2,2)/n))
+    if num == 0: return 0.5
+    if den == 0: return 0.5
+
+    return num/den
 
 
 def retrieve_user_data(user):
@@ -131,34 +174,46 @@ def retrieve_user_data(user):
     # print(user_data.text)
     user.data = json.loads(user_data)
 
-def getRecommendations(user,similarity=sim_pearson):
+
+def getRecommendations(user, similarity=sim_pearson):
     totals={}
     simSums={}
-    follows = SystemUser.objects.filter(id=user)[0].following_users.all()
+    user_likes = UserLike.objects.filter(system_user=user)
+    print(user_likes)
     for other in SystemUser.objects.all():
+        print(other)
         # don't compare me to myself
         if str(other) == str(user): continue
-        other_follows = SystemUser.objects.filter(id=other.id)[0].following_users.all()
+        other_likes = UserLike.objects.filter(system_user=other)
+        print(other_likes)
         # print(other_follows)
-        sim=similarity(follows, other_follows)
+        sim=similarity(user, other, user_likes, other_likes)
+        print(sim)
         # ignore scores of zero or lower
         if sim<=0: continue
-        for item in other_follows:
+        for item in other.following_users.all():
             # only score movies I haven't seen yet
-            if str(item) == str(user): continue 
-            if item not in follows:
-                # Similarity * Score
-                if item.followers_count != 0:
-                    totals.setdefault(item, 0)
+            if str(item) == str(user): continue
 
-                    totals[item] += item.followers_count*sim
-                    # Sum of similarities
-                    simSums.setdefault(item, 0)
-                    simSums[item] += sim
+            if not user.following_users.filter(id=item.id).exists():
+                # Similarity * Score
+                totals.setdefault(item, 0)
+                likes = other_likes.filter(user=item)
+                if not likes.exists():
+                    num_likes = 1
+                else:
+                    num_likes = likes[0].like_count
+                #print(item.followers_count)
+                totals[item] += sim+np.log(num_likes+1)+np.log(item.followers_count+1)/10
+                # Sum of similarities
+                simSums.setdefault(item, 0)
+                simSums[item] += sim
+
     # Create the normalized list
-    rankings=[(float(total/simSums[item]), item) for item, total in totals.items()]
+    rankings=[(total/simSums[item], item) for item, total in totals.items()]
     # Return the sorted list
     rankings = sorted(rankings, key= lambda x: x[0], reverse=True)[:10]
+    print(rankings)
     # Get user profile and annotate it
     [retrieve_user_data(value) for item, value in rankings]
     #rankings.reverse()
@@ -167,7 +222,9 @@ def getRecommendations(user,similarity=sim_pearson):
 
 def recommend(request):
     user_id = request.user.social_auth.get(provider='twitter').uid
-    recommendations = getRecommendations(user_id)
+    system_user = SystemUser.objects.filter(id=user_id)[0]
+    print(system_user)
+    recommendations = getRecommendations(system_user)
 
     return render(request, "main/recommendations.html", {"recommendations": recommendations})
 

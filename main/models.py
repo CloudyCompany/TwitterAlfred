@@ -3,7 +3,7 @@ from django.db import models
 
 # Create your models here.
 class User(models.Model):
-    id = models.CharField(primary_key=True, max_length=255)
+    id = models.CharField(primary_key=True, max_length=500)
     followers_count = models.IntegerField()
 
     def __str__(self):
