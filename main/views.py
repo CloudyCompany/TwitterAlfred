@@ -8,8 +8,13 @@ from main.forms import *
 from main.models import *
 import numpy as np
 import requests
-from requests_oauthlib import OAuth1Session
+from requests_oauthlib import OAuth1Session, OAuth1
 import json
+from bs4 import BeautifulSoup
+import urllib.request
+import requests
+import mechanize
+import http.cookiejar
 
 consumer_key = "2G8XPMR1fsWlUih1vSs0PPGP0"
 consumer_secret = "HqsjqDywEICnxgvi9uY1KEGD1n9rXVhyv6ytldzbatJoe64uHF"
@@ -171,3 +176,87 @@ def recommend(request):
 
     return render(request, "main/recommendations.html", {"recommendations": recommendations})
 
+def get_user_followers_count(user):
+    url = "https://twitter.com/" + user
+
+    # Scrapping to retrieve twitter profile
+    url = urllib.request.urlopen(url)
+
+    soup = BeautifulSoup(url, 'html.parser')
+
+    url.close()
+    profile = soup.find(id='doc')
+    profile_app_container = profile.findAll('div',class_="AppContainer")[1]
+
+    try:
+        following = profile_app_container.findAll('span', class_="ProfileNav-value")[2]["data-count"]
+    except:
+        following = 0
+
+    return following
+
+def get_profile_preview(request):
+    data = {}
+    url = "https://twitter.com/" + request.GET.get('screen_name')
+
+    # Scrapping to retrieve twitter profile
+    url = urllib.request.urlopen(url)
+
+    soup = BeautifulSoup(url, 'html.parser')
+
+    url.close()
+    profile = soup.find(id='doc')
+    profile_picture = profile.find('img',class_="avatar", src=True)['src']
+    profile_card = profile.find('div',class_="ProfileHeaderCard")
+    profile_app_container = profile.findAll('div',class_="AppContainer")[1]
+    data["profile_picture"] = str(profile_picture)
+    data["profile_card"] = str(profile_card)
+    data["profile_app_container"] = str(profile_app_container)
+    
+    return JsonResponse({'data': data})
+
+def updateDB(request):
+
+    if request.method == 'POST':
+        form = AccountForm(request.POST)
+        if form.is_valid():
+            print("Actualisando :)")
+
+            screen_name = form['screen_name'].value()
+            depth = int(form['depth'].value())
+
+            print("El user es " + screen_name)
+
+            url = "https://twitter.com/" + screen_name + "/following/"
+
+            cj = http.cookiejar.CookieJar()
+            br = mechanize.Browser()
+            br.set_cookiejar(cj)
+            br.open(url)
+
+            br.select_form(action="https://twitter.com/sessions")
+            br.form['session[username_or_email]'] = 'cloudycompany'
+            br.form['session[password]'] = 'corchuelocabron'
+            br.submit()
+            content = br.response().read()
+
+            for i in range(depth):
+                print("Iteración número " + str(i+1))
+                print("-------------------------------")
+
+                soup = BeautifulSoup(content, 'html.parser')
+                following = soup.findAll('div', class_="Grid-cell u-size1of2 u-lg-size1of3 u-mb10")
+                for f in following:
+                    user_data = f.find("div", {"data-screen-name":True}, class_="ProfileCard js-actionable-user ")
+                    username = user_data["data-screen-name"]
+                    user_id = user_data["data-user-id"]
+                    print(username)
+                    print(user_id)
+
+                    following_count = get_user_followers_count(username)
+                    print(following_count)
+
+                print("\n")
+    else:
+        form = AccountForm()
+    return render(request, "main/updateDB.html", {"form":form})
