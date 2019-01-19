@@ -2,14 +2,32 @@
 
 {% block content %}
     <h2>Cuentas recomendadas</h2>
-    {% for key, value in recommendations %}
-    <div class="account">
-        <img src="{{value.data.profile_image_url}}">
-        {{value.data.name}} (<a class="account-username" target="_blank" href="https://twitter.com/{{value.data.screen_name}}">@{{value.data.screen_name}})</a>
-    </div>
-    <br/>
-    <br/>
-    {% empty %}
-    No tienes recomendaciones aún.
-    {% endfor %}
+    <div class="row">
+            <div class="col-md-6">
+                {% for key, value in recommendations %}
+                <div class="account">
+                    <img src="{{value.data.profile_image_url}}">
+                    {{value.data.name}} (<a class="account-username" target="_blank" href="https://twitter.com/{{value.data.screen_name}}">@{{value.data.screen_name}})</a>
+                    <span id="{{value.data.screen_name}}" class="see-btn glyphicon glyphicon-eye-open"></span>
+                </div>
+                <br/>
+                <br/>
+                {% empty %}
+                No tienes recomendaciones aún.
+                {% endfor %}
+            </div>
+            <div id="preview" class="col-md-6">
+            </div>
+
+<script>
+$(document).ready(function () {
+    $(document).on('click','.see-btn',function(){
+        screen_name = $(this).attr("id");
+        $.get("http://127.0.0.1:8000/get_profile_preview?screen_name="+screen_name, function (data) {
+            console.log(data)
+            $("#preview").html(data.data.profile_app_container);
+        });
+    });
+});
+</script>
 {% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Actualizar base de datos</h2>
+    <div class="row">
+            <div class="col-md-6">
+                <form action="/update/" method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input class="btn btn-default" type="submit" value="Actualizar">
+                </form>
+            </div>
+    </div>
+
+{% endblock %}
