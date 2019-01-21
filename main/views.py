@@ -12,6 +12,8 @@ from bs4 import BeautifulSoup
 import urllib.request
 import mechanize
 import http.cookiejar
+from operator import itemgetter
+import math
 
 consumer_key = "2G8XPMR1fsWlUih1vSs0PPGP0"
 consumer_secret = "HqsjqDywEICnxgvi9uY1KEGD1n9rXVhyv6ytldzbatJoe64uHF"
@@ -117,13 +119,13 @@ def twitter_stream(request):
 
 def sim_pearson(p1, p2, friends_p1, friends_p2):
 
-    print(friends_p1)
-    print(friends_p2)
+    if len(friends_p1) == 0 or len(friends_p2): return 0
+
     # Get the list of mutually rated items
     si={}
     for item in friends_p1:
-        if UserLike.objects.filter(system_user=p2, user=item.user).exists():
-                si[item.user] = 1
+        if UserLike.objects.filter(system_user=p2, user=item).exists():
+                si[item] = 1
         # Find the number of elements
     n=len(si)
     print("N: "+str(n))
@@ -178,7 +180,6 @@ def retrieve_user_data(user):
                             resource_owner_key='748223177210331142-8fnl2OAldHDHiDttw4QFbqFppAYhzYw',
                             resource_owner_secret='P3rleM8izkVLsOGIYG8DElTSZAAwFLxOt7cle9aNKYzPz')
     user_data = twitter.get("https://api.twitter.com/1.1/users/show.json?user_id="+str(user)).text
-    # print(user_data.text)
     user.data = json.loads(user_data)
 
 
@@ -324,8 +325,7 @@ def updateDB(request):
     return render(request, "main/updateDB.html", {"form":form})
 
 
-def get_stats(request):
-    user_id = request.user.social_auth.get(provider='twitter').uid
+def get_likes_graph(user_id):
     system_user = SystemUser.objects.filter(id=user_id)[0]
 
     user_likes = UserLike.objects.filter(system_user__id = user_id).order_by('-like_count')[:5]
@@ -334,5 +334,36 @@ def get_stats(request):
     for u in user_likes:
         likes_graph.append([u.user.id, u.like_count])
 
-    print(likes_graph)
-    return render(request, "main/stats.html", {'values': likes_graph})
+    return likes_graph
+
+def get_follows_graph(user_id):
+    system_user = SystemUser.objects.filter(id=user_id)[0]
+    system_users = SystemUser.objects.all()
+    follows_graph = []
+
+    for s in system_users:
+        if s == system_user: continue
+        common_items = system_user.following_users.filter(id__in=s.following_users.values_list('id', flat=True))
+        follows_graph.append([s.id, len(common_items)])
+
+    return follows_graph
+
+def get_sim_graph(user_id):
+    system_user = SystemUser.objects.filter(id=user_id)[0]
+    users = User.objects.all()
+    sim_graph = []
+
+    for u in users:
+        sim = sim_pearson(system_user, u, system_user.following_users.all(), u.following_users.all())
+        if sim == 0: continue
+        sim_graph.append([u.id, math.ceil(sim)])
+
+    return sorted(sim_graph, key=itemgetter(1), reverse=True)[:5]
+
+def get_stats(request):
+    user_id = request.user.social_auth.get(provider='twitter').uid
+    likes_graph = get_likes_graph(user_id)
+    follows_graph = get_follows_graph(user_id)
+    sim_graph = get_sim_graph(user_id)
+
+    return render(request, "main/stats.html", {'likes_graph': likes_graph, 'follows_graph': follows_graph, 'sim_graph': sim_graph})
