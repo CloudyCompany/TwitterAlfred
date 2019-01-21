@@ -8,6 +8,9 @@ class User(models.Model):
     following_users = models.ManyToManyField("self", related_name='following', symmetrical=False)
     following_count = models.IntegerField()
     favourites_count = models.IntegerField()
+    photo_url = models.CharField(max_length=1024, null=True)
+    name = models.CharField(max_length=250)
+    username = models.CharField(max_length=250)
 
     def __str__(self):
         return str(self.id)
