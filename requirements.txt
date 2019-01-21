@@ -7,3 +7,4 @@ django-haystack
 whoosh
 numpy
 django==2.0
+mechanize

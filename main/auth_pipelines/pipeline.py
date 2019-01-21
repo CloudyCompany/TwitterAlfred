@@ -1,6 +1,10 @@
 from main.models import *
 import tweepy
 import time
+from bs4 import BeautifulSoup
+import urllib.request
+import mechanize
+import http.cookiejar
 
 
 consumer_key = "2G8XPMR1fsWlUih1vSs0PPGP0"
@@ -44,48 +48,220 @@ def update_user(backend, user, response, *args, **kwargs):
     auth.set_access_token(access_token, access_token_secret)
 
     api = tweepy.API(auth)
-    try:
-        if system_user.following_count != int(response["friends_count"]):
-            friends_list = []
-            print("users deleted")
-            for friends in handle_errors(tweepy.Cursor(api.friends, screen_name=response["screen_name"]).pages()):
-                for idx in range(len(friends)):
-                    print(friends[idx])
-                    #followers_count = api.get_user(friend.id).followers_count
-                    user = User(id=friends[idx].id_str, followers_count=friends[idx].followers_count)
-                    user.save()
-                    friends_list.append(user)
-            #  system_user.following_count = response["friends_count"]
-            #system_user.following_users.all().delete()
-            system_user.following_users.set(friends_list)
+    if system_user.following_count != int(response["friends_count"]):
+        friends_list = save_friends(api, response["screen_name"])
 
-            if response["friends_count"] != system_user.following_count:
-                system_user.following_count = response["friends_count"]
-            system_user.save()
-        print("friends")
-        if response["favourites_count"] != system_user.favourites_count:
-            UserLike.objects.filter(system_user=system_user).delete()
-            for favorite in tweepy.Cursor(api.favorites, screen_name=response["screen_name"]).items(300):
-                print(favorite.user)
+        system_user.following_users.set(friends_list)
+
+        if response["friends_count"] != system_user.following_count:
+            system_user.following_count = response["friends_count"]
+        system_user.save()
+
+    print("friends")
+    print(response["favourites_count"])
+    print(system_user.favourites_count)
+    if response["favourites_count"] != system_user.favourites_count:
+        save_likes(system_user, response["screen_name"], response["favourites_count"], api, 1)
+
+    system_user.save()
+
+    print("System user updated")
+
+
+def save_friends(api, screen_name, depth=0):
+    friends_list = []
+    print("users deleted")
+    try:
+
+        for friends in tweepy.Cursor(api.friends, screen_name=screen_name).pages():
+            for idx in range(len(friends)):
+                print(friends[idx].screen_name)
+                # followers_count = api.get_user(friend.id).followers_count
+                user = User(id=friends[idx].id_str, followers_count=friends[idx].followers_count, following_count=friends[idx].friends_count, favourites_count=friends[idx].favourites_count)
+                user.save()
+                friends_list.append(user)
+                save_likes(user, friends[idx].screen_name, friends[idx].favourites_count, api, 1)
+                if depth < 1:
+                    result_friends = save_friends(api, friends[idx].screen_name, depth=depth+1)
+                    user.following_users.set(result_friends)
+                    user.save()
+    except tweepy.TweepError as e:
+        if "Rate limit exceeded" in e.__str__() or "Twitter error response: status code = 429" in e.__str__():
+            friends_list = scrapp_friends(screen_name, depth)
+        else:
+            print(e)
+    return friends_list
+
+
+def save_likes(system_user, screen_name, favourites_count, api, depth=0):
+    try:
+        UserLike.objects.filter(system_user=system_user).delete()
+        for favorites in tweepy.Cursor(api.favorites, screen_name=screen_name).pages():
+
+            for favorite in favorites:
+                print(favorite.user.screen_name)
                 users = User.objects.filter(id=favorite.user.id)
                 if len(users) == 0:
-                    #followers_count = api.get_user(favorite.user.id).followers_count
-                    liked_user = User(id=favorite.user.id, followers_count=favorite.user.followers_count)
+                    liked_user = User(id=favorite.user.id, followers_count=favorite.user.followers_count, following_count=favorite.user.friends_count, favourites_count=favorite.user.favourites_count)
                     liked_user.save()
                 else:
                     liked_user = users[0]
 
                 likes = UserLike.objects.filter(user=liked_user, system_user=system_user)
-                if len(likes)>0:
+                if len(likes) > 0:
                     likes[0].like_count += 1
                     likes[0].save()
                 else:
                     like = UserLike(user=liked_user, system_user=system_user, like_count=1)
                     like.save()
-            system_user.favourites_count = response["favourites_count"]
-    except tweepy.error.RateLimitError:
-        print("Rate Limit error")
-    finally:
-        system_user.save()
+                if depth < 1:
+                    save_likes(liked_user, favorite.user.screen_name, favorite.user.favourites_count, api, depth=depth+1)
+            system_user.favourites_count = favourites_count
 
-    print("System user updated")
+    except tweepy.TweepError as e:
+        if "Rate limit exceeded" in e.__str__() or "Twitter error response: status code = 429" in e.__str__():
+            print("Scrapp likes")
+            scrapp_likes(system_user, screen_name, depth)
+            system_user.favourites_count = favourites_count
+        else:
+            print(e)
+
+
+def get_user_followers_count(user):
+    url = "https://twitter.com/" + user
+
+    # Scrapping to retrieve twitter profile
+    url = urllib.request.urlopen(url)
+
+    soup = BeautifulSoup(url, 'html.parser')
+
+    url.close()
+    profile = soup.find(id='doc')
+    profile_app_container = profile.findAll('div', class_="AppContainer")[1]
+
+    try:
+        following = profile_app_container.findAll('span', class_="ProfileNav-value")[2]["data-count"]
+    except:
+        following = 0
+
+    return following
+
+
+def scrapp_friends(screen_name, depth=0):
+
+    print("Actualisando :)")
+
+    print(screen_name)
+    print("El user es " + screen_name)
+
+    url = "https://twitter.com/" + screen_name + "/following/"
+
+    cj = http.cookiejar.CookieJar()
+    br = mechanize.Browser()
+    br.set_cookiejar(cj)
+    br.open(url)
+
+    br.select_form(action="https://twitter.com/sessions")
+    br.form['session[username_or_email]'] = 'cloudycompany'
+    br.form['session[password]'] = 'corchuelocabron'
+    br.submit()
+    content = br.response().read()
+
+    friend_list = []
+    print("-------------------------------")
+
+    soup = BeautifulSoup(content, 'html.parser')
+    following = soup.findAll('div', class_="Grid-cell u-size1of2 u-lg-size1of3 u-mb10")
+    for f in following:
+        user_data = f.find("div", {"data-screen-name":True}, class_="ProfileCard js-actionable-user ")
+        username = user_data["data-screen-name"]
+        user_id = user_data["data-user-id"]
+        print(username)
+        print(user_id)
+
+        following_count = get_user_followers_count(username)
+        print(following_count)
+
+        user = User.objects.filter(id=user_id)
+        if len(user) == 0:
+            friend = User(id=user_id, followers_count=following_count, following_count=0, favourites_count=0)
+            friend.save()
+
+            friend_list.append(friend)
+
+            if depth < 1:
+                result_friends = scrapp_friends(username, depth=depth+1)
+                friend.following_users.set(result_friends)
+                friend.save()
+                scrapp_likes(friend, username, 1)
+            print("=======================================")
+
+        print("\n")
+
+    return friend_list
+
+
+def scrapp_likes(system_user, screen_name, depth=0):
+
+    print("Actualisando :)")
+    print("DEPTH is : "+ str(depth))
+
+    print("El user es " + screen_name)
+
+    url = "https://twitter.com/" + screen_name + "/likes/"
+
+    cj = http.cookiejar.CookieJar()
+    br = mechanize.Browser()
+    br.set_cookiejar(cj)
+    br.open(url)
+
+    br.select_form(action="https://twitter.com/sessions")
+    br.form['session[username_or_email]'] = 'cloudycompany'
+    br.form['session[password]'] = 'corchuelocabron'
+    br.submit()
+    content = br.response().read()
+
+    print("-------------------------------")
+
+    soup = BeautifulSoup(content, 'html.parser')
+
+    # likes = soup.find("li", {"class": "ProfileNav-item ProfileNav-item--favorites is-active"}).a.find("span", {"class": "ProfileNav-value"})["data-count"]
+    # print("Likes: "+likes)
+
+    following = soup.findAll('div', {"class": "content"})
+    for f in following:
+        try:
+            user_data = f.find("div", {"class": "stream-item-header"})
+            if user_data is None:
+                print("End of likes page")
+                break
+            user_id = user_data.a["data-user-id"]
+            username = user_data.a.find("span", {"class": "username u-dir u-textTruncate"}).b.string
+            print(username)
+            print(user_id)
+
+            following_count = get_user_followers_count(username)
+            print(following_count)
+
+            users = User.objects.filter(id=user_id)
+            if len(users) == 0:
+                liked_user = User(id=user_id, followers_count=following_count, following_count=0, favourites_count=0)
+                liked_user.save()
+            else:
+                liked_user = users[0]
+
+            likes = UserLike.objects.filter(user=liked_user, system_user=system_user)
+            if len(likes) > 0:
+                likes[0].like_count += 1
+                likes[0].save()
+            else:
+                like = UserLike(user=liked_user, system_user=system_user, like_count=1, following_count=0, favourites_count=0)
+                like.save()
+            print("=================")
+            if depth < 1:
+                scrapp_likes(liked_user, username, depth+1)
+
+            print("\n")
+        except:
+            break
+

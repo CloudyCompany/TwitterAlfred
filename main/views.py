@@ -1,18 +1,14 @@
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from django.http import HttpResponse
 import tweepy
 import time
 from django.http import JsonResponse
 from main.forms import *
 from main.models import *
 import numpy as np
-import requests
 from requests_oauthlib import OAuth1Session, OAuth1
 import json
 from bs4 import BeautifulSoup
 import urllib.request
-import requests
 import mechanize
 import http.cookiejar
 
@@ -26,6 +22,7 @@ pagination = 10
 time_limit = 5
 current_time = 0
 tag = "trump"
+last_tag = "trump"
 last_id = 0
 
 
@@ -41,7 +38,8 @@ class StreamListener(tweepy.StreamListener):
 
     def on_status(self, status):
         global last_id
-        if (time.time() - current_time) < time_limit and status.id != last_id:
+        global last_tag
+        if (time.time() - current_time) < time_limit and status.id != last_id and last_tag == tag:
             last_id = status.id
             tweet = {}
             tweet['text'] = status.text
@@ -60,6 +58,7 @@ class StreamListener(tweepy.StreamListener):
         
             return True
         else:
+            last_tag = tag
             return False
 
     def on_error(self, status_code):
@@ -90,6 +89,7 @@ def get_twitter_stream(request=None):
 def twitter_stream(request):
     global tweets
     global tag
+    global last_tag
     global pagination
     global places
 
@@ -98,6 +98,7 @@ def twitter_stream(request):
         if form.is_valid():
 
             if tag != form['tag'].value():
+                last_tag = tag
                 tag = form['tag'].value()
                 places = []
 
@@ -185,7 +186,7 @@ def getRecommendations(user, similarity=sim_pearson):
     simSums={}
     user_likes = UserLike.objects.filter(system_user=user)
     print(user_likes)
-    for other in SystemUser.objects.all():
+    for other in User.objects.all():
         print(other)
         # don't compare me to myself
         if str(other) == str(user): continue
@@ -233,6 +234,7 @@ def recommend(request):
 
     return render(request, "main/recommendations.html", {"recommendations": recommendations})
 
+
 def get_user_followers_count(user):
     url = "https://twitter.com/" + user
 
@@ -251,6 +253,7 @@ def get_user_followers_count(user):
         following = 0
 
     return following
+
 
 def get_profile_preview(request):
     data = {}
@@ -271,6 +274,7 @@ def get_profile_preview(request):
     data["profile_app_container"] = str(profile_app_container)
     
     return JsonResponse({'data': data})
+
 
 def updateDB(request):
 
