@@ -10,4 +10,5 @@ urlpatterns = [
     path('recommendations', views.recommend),
     path('get_profile_preview/', views.get_profile_preview),
     path('update/', views.updateDB),
+    path('stats/', views.get_stats),
 ]

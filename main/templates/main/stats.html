@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Métricas</h2>
+    <div class="row">
+            <div class="col-md-6">
+                <div id="likes_graph"></div>
+                <div id="follows_graph"></div>
+                <div id="sim_graph"></div>
+                {% load googlecharts %}
+                {% googlecharts %}
+                    {% data likes_graph "out_data" %}
+                        {% col "string" "Name" %}"{{ val }}"{% endcol %}
+                        {% col "number" "Favoritos" %}{{ val }}{% endcol %}
+                    {% enddata %}
+                    {% options "out_options" %}
+                        kind: "BarChart",
+                        options: {
+                            title: 'Usuarios con más favoritos',
+                            color: 'pink',
+                            fontSize: 15,
+                            width: 1000,
+                            height: 280,
+                            colors: ['#DCDBFF'],
+                            legend: {
+                                maxLines: 10,
+                                textStyle: {
+                                fontSize: 13
+                                }
+                            },
+                        }
+                    {% endoptions %}
+                    {% graph "likes_graph" "out_data" "out_options" %}
+
+                    {% data follows_graph "out_data" %}
+                        {% col "string" "Name" %}"{{ val }}"{% endcol %}
+                        {% col "number" "Seguidores" %}{{ val }}{% endcol %}
+                    {% enddata %}
+                    {% options "out_options" %}
+                        kind: "PieChart",
+                        options: {
+                            title: 'Usuarios con más seguidos en común',
+                            color: '#DCDBFF',
+                            fontSize: 15,
+                            width: 1000,
+                            height: 280,
+                            colors: ['#DCDBFF','pink','#ABEDFF','#C1FFED','#FFFBC1'],
+                            legend: {
+                                maxLines: 10,
+                                textStyle: {
+                                fontSize: 13
+                                }
+                            },
+                        }
+                    {% endoptions %}
+                    {% graph "follows_graph" "out_data" "out_options" %}
+
+                    {% data sim_graph "out_data" %}
+                    {% col "string" "Name" %}"{{ val }}"{% endcol %}
+                    {% col "number" "Similitud" %}{{ val }}{% endcol %}
+                    {% enddata %}
+                    {% options "out_options" %}
+                        kind: "ColumnChart",
+                        options: {
+                            title: 'Usuarios similares',
+                            color: '#DCDBFF',
+                            fontSize: 15,
+                            width: 1000,
+                            height: 280,
+                            colors: ['#FFFBC1'],
+                            legend: {
+                                maxLines: 10,
+                                textStyle: {
+                                fontSize: 13
+                                }
+                            },
+                        }
+                    {% endoptions %}
+                    {% graph "sim_graph" "out_data" "out_options" %}
+                {% endgooglecharts %}
+            </div>
+    </div>
+
+{% endblock %}
