@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'haystack',
     'social_django',
     'corsheaders',
+    'googlecharts'
 ]
 
 MIDDLEWARE = [

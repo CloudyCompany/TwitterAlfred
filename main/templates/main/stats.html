@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Métricas</h2>
+    <div class="row">
+            <div class="col-md-6">
+                <div id="out"></div>
+                {% load googlecharts %}
+                {% googlecharts %}
+                    {% data values "out_data" %}
+                        {% col "string" "Name" %}"{{ val }}"{% endcol %}
+                        {% col "number" "Favoritos" %}{{ val }}{% endcol %}
+                    {% enddata %}
+                    {% options "out_options" %}
+                        kind: "BarChart",
+                        options: {
+                            title: 'Usuarios con más favoritos',
+                            color: 'pink',
+                            fontSize: 15,
+                            width: 1000,
+                            height: 280,
+                            <!-- chartArea: {  width: "60%", height: "60%" }, -->
+                            colors: ['pink'],
+                            legend: {
+                                maxLines: 10,
+                                textStyle: {
+                                fontSize: 13
+                                }
+                            },
+                        }
+                    {% endoptions %}
+                    {% graph "out" "out_data" "out_options" %}
+                {% endgooglecharts %}
+            </div>
+    </div>
+
+{% endblock %}

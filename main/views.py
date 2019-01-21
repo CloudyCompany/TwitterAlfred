@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db.models import Sum
 import tweepy
 import time
 from django.http import JsonResponse
@@ -321,3 +322,17 @@ def updateDB(request):
     else:
         form = AccountForm()
     return render(request, "main/updateDB.html", {"form":form})
+
+
+def get_stats(request):
+    user_id = request.user.social_auth.get(provider='twitter').uid
+    system_user = SystemUser.objects.filter(id=user_id)[0]
+
+    user_likes = UserLike.objects.filter(system_user__id = user_id).order_by('-like_count')[:5]
+    likes_graph = []
+
+    for u in user_likes:
+        likes_graph.append([u.user.id, u.like_count])
+
+    print(likes_graph)
+    return render(request, "main/stats.html", {'values': likes_graph})

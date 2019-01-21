@@ -8,3 +8,5 @@ whoosh
 numpy
 django==2.0
 mechanize
+django-google-charts
+django-qsstats-magic
