@@ -104,6 +104,8 @@ def twitter_stream(request):
                 last_tag = tag
                 tag = form['tag'].value()
                 places = []
+                print(tag)
+                print(last_tag)
 
             pagination = int(form["pagination"].value())
             tweets = []
@@ -207,7 +209,8 @@ def getRecommendations(user, similarity=sim_pearson):
                 # Similarity * Score
                 totals.setdefault(item, 0)
                 likes = other_likes.filter(user=item)
-                if not likes.exists():
+                if not likes.\
+                        exists():
                     num_likes = 1
                 else:
                     num_likes = likes[0].like_count
@@ -223,7 +226,8 @@ def getRecommendations(user, similarity=sim_pearson):
     rankings = sorted(rankings, key= lambda x: x[0], reverse=True)[:10]
     print(rankings)
     # Get user profile and annotate it
-    [retrieve_user_data(value) for item, value in rankings]
+    # [retrieve_user_data(value) for item, value in rankings]
+    rankings = [el[1] for el in rankings]
     #rankings.reverse()
     return rankings
 
@@ -231,7 +235,18 @@ def getRecommendations(user, similarity=sim_pearson):
 def recommend(request):
     user_id = request.user.social_auth.get(provider='twitter').uid
     system_user = SystemUser.objects.filter(id=user_id)[0]
-    recommendations = getRecommendations(system_user)
+    print(system_user)
+    if request.method == 'POST':
+        recommendations = getRecommendations(system_user)
+        system_user.recommendations.set(recommendations)
+        system_user.save()
+    else:
+        if system_user.recommendations.count() == 0:
+            recommendations = getRecommendations(system_user)
+            system_user.recommendations.set(recommendations)
+            system_user.save()
+        else:
+            recommendations = system_user.recommendations.all()
 
     print(recommendations)
     return render(request, "main/recommendations.html", {"recommendations": recommendations})
