@@ -119,21 +119,21 @@ def twitter_stream(request):
 
 def sim_pearson(p1, p2, friends_p1, friends_p2):
 
-    if len(friends_p1) == 0 or len(friends_p2): return 0
+    if len(friends_p1) == 0 or len(friends_p2) or p2.following_count == 0: return 0
 
     # Get the list of mutually rated items
     si={}
     for item in friends_p1:
-        if UserLike.objects.filter(system_user=p2, user=item).exists():
-                si[item] = 1
+        if UserLike.objects.filter(system_user=p2, user=item.user).exists():
+                si[item.user] = 1
         # Find the number of elements
     n=len(si)
-    print("N: "+str(n))
     if n == 0:
         for item in p1.following_users.all():
             if p2.following_users.filter(id=item.id).exists():
                 si[item]=1
         if len(si)==0: return 0
+        if p1.following_count==0: return 0
         return (len(si)/p1.following_count)+1/p2.following_count
 
     sum1 = 0
@@ -354,7 +354,7 @@ def get_sim_graph(user_id):
     sim_graph = []
 
     for u in users:
-        sim = sim_pearson(system_user, u, system_user.following_users.all(), u.following_users.all())
+        sim = sim_pearson(system_user, u, UserLike.objects.filter(system_user=system_user), UserLike.objects.filter(user=u))
         if sim == 0: continue
         sim_graph.append([u.id, math.ceil(sim)])
 
