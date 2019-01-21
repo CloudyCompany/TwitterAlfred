@@ -119,7 +119,7 @@ def twitter_stream(request):
 
 def sim_pearson(p1, p2, friends_p1, friends_p2):
 
-    if len(friends_p1) == 0 or len(friends_p2) or p2.following_count == 0: return 0
+    if len(friends_p1) == 0 or len(friends_p2) == 0 or p2.following_count == 0: return 0
 
     # Get the list of mutually rated items
     si={}
@@ -231,9 +231,9 @@ def getRecommendations(user, similarity=sim_pearson):
 def recommend(request):
     user_id = request.user.social_auth.get(provider='twitter').uid
     system_user = SystemUser.objects.filter(id=user_id)[0]
-    print(system_user)
     recommendations = getRecommendations(system_user)
 
+    print(recommendations)
     return render(request, "main/recommendations.html", {"recommendations": recommendations})
 
 
