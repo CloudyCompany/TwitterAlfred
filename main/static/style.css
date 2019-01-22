@@ -64,6 +64,9 @@ footer {
 .panel span{
     padding-right:1%;
 }
+.panel{
+    display:inline-block
+}
 
 .load-gif{
     width:80%;

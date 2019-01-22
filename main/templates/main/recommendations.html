@@ -13,7 +13,7 @@
                 <br/>
                 {% empty %}
                 <div>
-                No tienes recomendaciones aún.
+                No tienes recomendaciones aún.<br/><br/>
                 </div>
                 {% endfor %}
             </div>
@@ -49,7 +49,7 @@ $(document).ready(function () {
             '</i>' + location + '<br/><br/><b>Número de tuits:</b> ' + data.data.tweet_count + '<br/>'
             + '<b>Número de seguidos:</b> ' + data.data.following + '<br/>'
             + '<b>Número de seguidores:</b> ' + data.data.followers + '<br/><br/>'
-            + '<b>Último tweet:</b><br/>' + data.data.last_tweet + '</div>'
+            + '<b>Último tuit:</b><br/>' + data.data.last_tweet + '</div>'
             $("#preview").html(preview);
         });
     });

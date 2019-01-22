@@ -295,10 +295,18 @@ def get_profile_preview(request):
     except:
         tweet_count = 0
 
+    try:
+        following = profile_app_container.find('a', {'data-nav':'following'}).findAll("span")[2]["data-count"]
+    except:
+        following = 0
+
+    try:
+        followers = profile_app_container.find('a', {'data-nav':'followers'}).findAll("span")[2]["data-count"]
+    except:
+        followers = 0
+        
     bio = profile_card.find('p', class_="ProfileHeaderCard-bio u-dir").getText()
     location = profile_card.find('span', class_="ProfileHeaderCard-locationText u-dir").text
-    following = profile_app_container.find('a', {'data-nav':'following'}).findAll("span")[2]["data-count"]
-    followers = profile_app_container.find('a', {'data-nav':'followers'}).findAll("span")[2]["data-count"]
 
     # Setting of data
     data["profile_picture"] = str(profile_picture)
