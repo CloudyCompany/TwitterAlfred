@@ -6,7 +6,9 @@ psycopg2
 django-haystack
 whoosh
 numpy
+dateutil
 django==2.0
 mechanize
 django-google-charts
 django-qsstats-magic
+django-heroku
