@@ -3,8 +3,6 @@ tweepy
 social-auth-app-django
 beautifulsoup4
 psycopg2
-django-haystack
-whoosh
 numpy
 python-dateutil
 django==2.0

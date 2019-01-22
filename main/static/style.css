@@ -119,7 +119,7 @@ background: #A9A9A9;
 }
 
 .username:hover{
-    color: orchid!important;
+    color: #FFC5E0!important;
 }
 
 .tweet-photo {
@@ -270,11 +270,11 @@ margin-right: 6px;
 }
 
 .navbar-primary-menu li a:hover .glyphicon {
-color: orchid;
+color: #FFC5E0;
 }
 
 .navbar-user li a:hover .glyphicon {
-    color: orchid;
+    color: #FFC5E0;
 }
 
 .main-content {
