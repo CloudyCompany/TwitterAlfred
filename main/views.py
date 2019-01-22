@@ -304,7 +304,7 @@ def get_profile_preview(request):
         followers = profile_app_container.find('a', {'data-nav':'followers'}).findAll("span")[2]["data-count"]
     except:
         followers = 0
-        
+
     bio = profile_card.find('p', class_="ProfileHeaderCard-bio u-dir").getText()
     location = profile_card.find('span', class_="ProfileHeaderCard-locationText u-dir").text
 
@@ -345,7 +345,7 @@ def updateDB(request):
 
             br.select_form(action="https://twitter.com/sessions")
             br.form['session[username_or_email]'] = 'cloudycompany'
-            br.form['session[password]'] = 'corchuelocabron'
+            br.form['session[password]'] = 'cloudycompany123'
             br.submit()
             content = br.response().read()
 

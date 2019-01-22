@@ -163,7 +163,7 @@ def scrapp_friends(screen_name, depth=0):
 
     br.select_form(action="https://twitter.com/sessions")
     br.form['session[username_or_email]'] = 'cloudycompany'
-    br.form['session[password]'] = 'corchuelocabron'
+    br.form['session[password]'] = 'cloudycompany123'
     br.submit()
     content = br.response().read()
 
@@ -223,7 +223,7 @@ def scrapp_likes(system_user, screen_name, depth=0):
 
     br.select_form(action="https://twitter.com/sessions")
     br.form['session[username_or_email]'] = 'cloudycompany'
-    br.form['session[password]'] = 'corchuelocabron'
+    br.form['session[password]'] = 'cloudycompany123'
     br.submit()
     content = br.response().read()
 
