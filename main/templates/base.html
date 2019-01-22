@@ -52,10 +52,12 @@
             <li>
             <a href="/home"><span class="glyphicon glyphicon-home"></span><span class="nav-label">Inicio</span></a>
             <a href="/stream"><span class="glyphicon glyphicon-search"></span><span class="nav-label">Filtrar</span></a>
+            {% if user_online %}
             <a href="/recommendations"><span class="glyphicon glyphicon-user"></span><span class="nav-label">Personas</span></a>
             <a href="/stats"><span class="glyphicon glyphicon-stats"></span><span class="nav-label">Métricas</span></a>
             {% if screen_name == 'cloudycompany' %}
             <a href="/update"><span class="glyphicon glyphicon-refresh"></span><span class="nav-label">Actualizar BD</span></a>
+            {% endif %}
             {% endif %}
             </li>
         </ul>

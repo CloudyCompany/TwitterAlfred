@@ -12,7 +12,9 @@ footer {
 }
 
 .footer-copyright {
-    margin-top: 35em;
+    position: fixed;
+    top: 95%;
+    left: 2.5%;
     font-size: 0.8vw;
 }
 
@@ -59,7 +61,14 @@ footer {
     /* border: solid 2px red; */
     overflow: auto;
 }
+.panel span{
+    padding-right:1%;
+}
 
+.load-gif{
+    width:80%;
+    vertical-align: center;
+}
 /* Custom scrollbar */
 /* width */
 ::-webkit-scrollbar {
@@ -119,21 +128,21 @@ background: #A9A9A9;
 }
 
 .account{
-    background-color:E3D4FF;
+    background-color:#E3D4FF;
     border: #9A70EA 2px solid;
     border-radius: 5px;
     padding:0.8em;
     display: inline-block;
     min-width:27em;
+    cursor: pointer;
 }
-
+.account:hover{
+    background-color:#E0F7FF;
+    border-color: #009CD2
+}
 h2{
-    /* border-bottom: 1px solid linear-gradient(to bottom, black, rgba(0, 0, 0, 0)); */
-    /* border-image-slice: 1;
-    border-width: 2px;
-    border-image: linear-gradient(to left, #743ad5, #d53a9d); */
     font-weight: 100;
-    border-bottom: solid 2px #757575;
+    border-bottom: solid 1.5px #757575;
     margin-bottom: 1em;
     color: #757575;
 }
@@ -151,6 +160,17 @@ h2{
 .account img{
     border-radius: 50%;
     margin-right:0.7em;
+}
+#preview img{
+    border-radius: 50%;
+    margin-right:0.7em;
+}
+.panel-body i{
+    text-align: center;
+}
+#preview p{
+    font-size: 1.2vw;
+    font-weight: bold;
 }
 /*   Side bar menu   */
 .navbar-global {

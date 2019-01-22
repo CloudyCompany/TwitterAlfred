@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.db.models import Sum
+from django.contrib.auth.decorators import login_required
 import tweepy
 import time
 from django.http import JsonResponse
@@ -14,6 +15,7 @@ import mechanize
 import http.cookiejar
 from operator import itemgetter
 import math
+import re
 
 consumer_key = "2G8XPMR1fsWlUih1vSs0PPGP0"
 consumer_secret = "HqsjqDywEICnxgvi9uY1KEGD1n9rXVhyv6ytldzbatJoe64uHF"
@@ -231,11 +233,11 @@ def getRecommendations(user, similarity=sim_pearson):
     #rankings.reverse()
     return rankings
 
-
+@login_required
 def recommend(request):
     user_id = request.user.social_auth.get(provider='twitter').uid
     system_user = SystemUser.objects.filter(id=user_id)[0]
-    print(system_user)
+
     if request.method == 'POST':
         recommendations = getRecommendations(system_user)
         system_user.recommendations.set(recommendations)
@@ -249,7 +251,7 @@ def recommend(request):
             recommendations = system_user.recommendations.all()
 
     print(recommendations)
-    return render(request, "main/recommendations.html", {"recommendations": recommendations})
+    return render(request, "main/recommendations.html", {"recommendations": recommendations[:5]})
 
 
 def get_user_followers_count(user):
@@ -271,10 +273,10 @@ def get_user_followers_count(user):
 
     return following
 
-
 def get_profile_preview(request):
     data = {}
     url = "https://twitter.com/" + request.GET.get('screen_name')
+    user = User.objects.filter(username=request.GET.get('screen_name'))[0]
 
     # Scrapping to retrieve twitter profile
     url = urllib.request.urlopen(url)
@@ -286,13 +288,34 @@ def get_profile_preview(request):
     profile_picture = profile.find('img',class_="avatar", src=True)['src']
     profile_card = profile.find('div',class_="ProfileHeaderCard")
     profile_app_container = profile.findAll('div',class_="AppContainer")[1]
+    last_tweet = soup.findAll("p", class_="TweetTextSize TweetTextSize--normal js-tweet-text tweet-text")[0].text.split("pic.twitter")[0]
+    tweet = soup.findAll("div", class_="tweet")[0].text
+    try:
+        tweet_count = profile_app_container.find('a', {'data-nav':'tweets'}).findAll("span")[2]["data-count"]
+    except:
+        tweet_count = 0
+
+    bio = profile_card.find('p', class_="ProfileHeaderCard-bio u-dir").getText()
+    location = profile_card.find('span', class_="ProfileHeaderCard-locationText u-dir").text
+    following = profile_app_container.find('a', {'data-nav':'following'}).findAll("span")[2]["data-count"]
+    followers = profile_app_container.find('a', {'data-nav':'followers'}).findAll("span")[2]["data-count"]
+
+    # Setting of data
     data["profile_picture"] = str(profile_picture)
     data["profile_card"] = str(profile_card)
     data["profile_app_container"] = str(profile_app_container)
-    
+    data["tweet_count"] = str(tweet_count)
+    data["bio"] = re.sub('\s+', ' ', str(bio)).strip()
+    data["location"] = re.sub('\s+', ' ', str(location)).strip()
+    data["username"] = request.GET.get('screen_name')
+    data["name"] = user.name
+    data["following"] = str(following)
+    data["followers"] = str(followers)
+    data["last_tweet"] = str(last_tweet)
+    data["tweet"] = str(tweet)
     return JsonResponse({'data': data})
 
-
+@login_required
 def updateDB(request):
 
     if request.method == 'POST':
@@ -347,7 +370,7 @@ def get_likes_graph(user_id):
     likes_graph = []
 
     for u in user_likes:
-        likes_graph.append([u.user.id, u.like_count])
+        likes_graph.append([u.user.username, u.like_count])
 
     return likes_graph
 
@@ -359,7 +382,7 @@ def get_follows_graph(user_id):
     for s in system_users:
         if s == system_user: continue
         common_items = system_user.following_users.filter(id__in=s.following_users.values_list('id', flat=True))
-        follows_graph.append([s.id, len(common_items)])
+        follows_graph.append([s.username, len(common_items)])
 
     return follows_graph
 
@@ -371,10 +394,11 @@ def get_sim_graph(user_id):
     for u in users:
         sim = sim_pearson(system_user, u, UserLike.objects.filter(system_user=system_user), UserLike.objects.filter(user=u))
         if sim == 0: continue
-        sim_graph.append([u.id, math.ceil(sim)])
+        sim_graph.append([u.username, math.ceil(sim)])
 
     return sorted(sim_graph, key=itemgetter(1), reverse=True)[:5]
 
+@login_required
 def get_stats(request):
     user_id = request.user.social_auth.get(provider='twitter').uid
     likes_graph = get_likes_graph(user_id)

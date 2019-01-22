@@ -5,29 +5,60 @@
     <div class="row">
             <div class="col-md-6">
                 {% for value in recommendations %}
-                <div class="account">
+                <div id="{{value.username}}" class="account">
                     <img src="{{value.photo_url}}">
-                    {{value.name}} (<a class="account-username" target="_blank" href="https://twitter.com/{{value.screen_name}}">@{{value.screen_name}})</a>
-                    <span id="{{value.screen_name}}" class="see-btn glyphicon glyphicon-eye-open"></span>
+                    {{value.name}} (<a class="account-username" target="_blank" href="https://twitter.com/{{value.username}}">@{{value.username}})</a>
                 </div>
                 <br/>
                 <br/>
                 {% empty %}
+                <div>
                 No tienes recomendaciones aún.
+                </div>
                 {% endfor %}
             </div>
-            <div id="preview" class="col-md-6">
+            <div class="col-md-6">
+                <div id="preview">
+                </div>
             </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-md-offset-1">
+            <form action="/recommendations/" method="post">
+                {% csrf_token %}
+                <input class="btn btn-info" type="submit" value="Actualizar recomendaciones">
+            </form>
+        </div>
+    </div>
 
 <script>
 $(document).ready(function () {
-    $(document).on('click','.see-btn',function(){
+    $(document).on('click','.account',function(){
+        $("#preview").html('<img class="load-gif" src="https://cdn.dribbble.com/users/278570/screenshots/3044674/preloader_ps_fast.gif"/>');
         screen_name = $(this).attr("id");
         $.get("http://127.0.0.1:8000/get_profile_preview?screen_name="+screen_name, function (data) {
             console.log(data)
-            $("#preview").html(data.data.profile_app_container);
+            var location = "";
+            if (data.data.location){
+                var location = '<br/><br/> <span class="glyphicon glyphicon-map-marker"></span>'  
+                + data.data.location
+            }
+            
+            var preview = '<div class="panel panel-info"><div id="preview" class="panel-heading"><p><img src="'+ data.data.profile_picture +'"> ' + data.data.name + '</p>'
+            + '</div><div class="panel-body"><i text-center>' + data.data.bio + 
+            '</i>' + location + '<br/><br/><b>Número de tuits:</b> ' + data.data.tweet_count + '<br/>'
+            + '<b>Número de seguidos:</b> ' + data.data.following + '<br/>'
+            + '<b>Número de seguidores:</b> ' + data.data.followers + '<br/><br/>'
+            + '<b>Último tweet:</b><br/>' + data.data.last_tweet + '</div>'
+            $("#preview").html(preview);
         });
     });
 });
 </script>
 {% endblock %}
+
+<div class="panel panel-info">
+        <div id="preview" class="panel-heading"></div>
+        <div class="panel-body">
+        </div>
+</div>
